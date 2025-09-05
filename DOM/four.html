@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Chai or Code</title>
+    </head>
+    <body style ="background-color: #212121; color: #fff;">
+        
+        <ul class="language">
+            <li>JavaScripts</li>
+        <script src="" async defer></script>
+    </body>
+    <script>
+
+        function addLanguage(langName){
+         const li = document.createElement('li');
+         li.innerHTML = `$(langName)`
+            document.querySelector('.language').appendChild(li);
+            appendChild(li);
+        }
+        addLanguage("Python");
+        addLanguage("C++");
+
+        function addOptiLanguage(langName){
+            const li = document.createElement('li');
+            li.appendChild(document.createTextNode(langName));
+            document.querySelector('.language').appendChild(li);
+           }
+           addOptiLang('golang');
+           addOptiLang('Ruby');
+
+           //Edit
+          const secondlang = document.querySelector("li : nth-child(2)")
+          console.log(secondlang);
+          //secondlang.innerHTML = "Mojo"
+
+          const newli = document.createElement('li');
+          newli.textContent = "Mojo";
+          secondlang.replaceWith(newli);
+
+          //Edit
+          const firstlang =  document.querySelector("li : first-child");
+          firstLang.outerHTML = "<li>TypeScripts</li>";
+
+            //Remove
+            const lastlang = document.querySelector("li : last-child");
+            lastlang.remove();
+            //lastlang.parentElement.removeChild(lastlang);
+
+    </script>
+</html>
