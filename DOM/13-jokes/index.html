@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chunk Norris</title>
+  <style>
+    body {
+      background: #121212;
+      color: #f0db4f;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 450px;
+      padding: 2rem;
+      background: #1f1f1f;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      text-align: center;
+    }
+    #display-joke {
+      min-height: 100px;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      line-height: 1.4;
+    }
+    .btn {
+      background-color: #ff3c00;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      margin: 0 10px 10px 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .btn:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+    }
+    .btn:hover:not(:disabled) {
+      background-color: #e63900;
+    }
+  </style>
+</head>
+<body>
+  <section class="container">
+    <div id="display-joke">Click the button to get a new joke</div>
+    <button class="btn" id="getJoke">Get Joke</button>
+    <button class="btn" id="shareBtn" disabled>Share on Twitter</button>
+  </section>
+
+  <script>
+    const displayJoke = document.getElementById('display-joke');
+    const getJokeBtn = document.getElementById('getJoke');
+    const shareBtn = document.getElementById('shareBtn');
+
+    let currentJoke = '';
+
+    getJokeBtn.addEventListener('click', async () => {
+      displayJoke.textContent = 'Loading joke...';
+      shareBtn.disabled = true;
+
+      try {
+        const response = await fetch('https://api.chucknorris.io/jokes/random');
+        if (!response.ok) throw new Error('Failed to fetch joke');
+
+        const data = await response.json();
+        currentJoke = data.value;
+        displayJoke.textContent = currentJoke;
+        shareBtn.disabled = false;
+      } catch (error) {
+        displayJoke.textContent = 'Oops! Could not fetch a joke. Try again later.';
+        console.error(error);
+        shareBtn.disabled = true;
+      }
+    });
+
+    shareBtn.addEventListener('click', () => {
+      if (!currentJoke) return;
+
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(currentJoke + ' #ChuckNorris')}`;
+      window.open(twitterUrl, '_blank', 'width=550,height=420');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+body {
+  background-color: #121212;
+  color: #eee;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2rem;
+  text-align: center;
+  padding-top: 50px;
+}
+
+.js {
+  color: #f0db4f; /* JavaScript yellow */
+  font-weight: bold;
+}
+
+.typed-text {
+  color: #61dafb; /* Light blue for typed text */
+  font-weight: 600;
+}
+
+.cursor {
+  display: inline-block;
+  width: 3px;
+  background-color: #61dafb; /* Same light blue */
+  margin-left: 2px;
+  animation: blink 1s step-start infinite;
+}
+
+.cursor.active {
+  background-color: transparent;
+}
+
+@keyframes blink {
+  50% {
+    background-color: transparent;
+  }
+}
