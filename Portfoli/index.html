@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Resume</title>
+<style>
+/* ===== Your CSS ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, Helvetica, sans-serif; background:#f8f9fa; color:#333; line-height:1.6; }
+h1,h2,h3,h4 { font-weight:600; }
+a { color:#0066cc; text-decoration:none; }
+a:hover { text-decoration:underline; }
+button, .btn { cursor:pointer; border:none; padding:8px 14px; border-radius:6px; background:#4facfe; color:#fff; transition:0.2s; }
+button:hover, .btn:hover { background:#00c6ff; }
+.btn.ghost { background:#e0e0e0; color:#333; }
+.btn.ghost:hover { background:#d0d0d0; }
+
+.container { max-width:800px; margin:20px auto; padding:0 15px; }
+.card { background:white; border-radius:10px; padding:20px; margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+.card h2 { border-bottom:2px solid #4facfe; padding-bottom:5px; margin-bottom:15px; }
+.editable { background:#f0f8ff; padding:2px 4px; border-radius:4px; }
+.editable:focus { outline:2px solid #4facfe; background-color:#fff; }
+.projects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:15px; margin-top:15px; }
+.project-card { background:#f7f9fc; padding:15px; border-radius:8px; border-left:4px solid #4facfe; }
+.footer { text-align:center; padding:15px; color:#555; background:#e9f0f7; margin-top:20px; }
+@media(max-width:600px){ .projects-grid{grid-template-columns:1fr;} }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container" id="resumeContainer">
+  <section class="card">
+    <h1 contenteditable="true" class="editable" data-key="name">Your Name</h1>
+    <p>Email: <span contenteditable="true" class="editable" data-key="email">you@example.com</span></p>
+    <p>LinkedIn: <span contenteditable="true" class="editable" data-key="linkedin">linkedin.com/in/your</span></p>
+    <p>GitHub: <span contenteditable="true" class="editable" data-key="github">github.com/your</span></p>
+    <p>Contact: <span contenteditable="true" class="editable" data-key="contact">+91-XXXXXXXXXX</span></p>
+  </section>
+
+  <section class="card">
+    <h2>Profile</h2>
+    <p contenteditable="true" class="editable" data-key="profileText">Write a short profile about yourself.</p>
+  </section>
+
+  <section class="card">
+    <h2>Education</h2>
+    <p contenteditable="true" class="editable" data-key="education">Degree / College / Year / CGPA</p>
+  </section>
+
+  <section class="card">
+    <h2>Languages</h2>
+    <p contenteditable="true" class="editable" data-key="languages">English, Hindi</p>
+  </section>
+
+  <section class="card">
+    <h2>Skills</h2>
+    <p contenteditable="true" class="editable" data-key="skills">HTML, CSS, JavaScript</p>
+  </section>
+
+  <section class="card">
+    <h2>Projects</h2>
+    <div contenteditable="true" class="editable" data-key="projects" id="projectsText">Project1 - Description</div>
+    <div class="projects-grid" id="projectsRender"></div>
+  </section>
+
+  <section class="card">
+    <h2>Training / Internship</h2>
+    <p contenteditable="true" class="editable" data-key="training">Your training or internship</p>
+  </section>
+
+  <section class="card">
+    <h2>Certifications</h2>
+    <p contenteditable="true" class="editable" data-key="certifications">NIELIT O Level - NIELIT</p>
+  </section>
+
+  <section class="card">
+    <h2>Personal Interests</h2>
+    <p contenteditable="true" class="editable" data-key="personalInterests">Coding, Photography, Sports</p>
+  </section>
+
+  <div id="downloadButtons">
+    <button id="downloadHtml" class="btn">⬇️ Download HTML</button>
+    <button id="downloadPdf" class="btn">📄 Download PDF</button>
+  </div>
+</div>
+
+<div class="footer">© <span id="year"></span> — My Resume</div>
+
+<script>
+// Set year
+document.getElementById("year").innerText = new Date().getFullYear();
+
+// Render projects cards
+function renderProjects(){
+  const projectsRender=document.getElementById("projectsRender");
+  const projectsRaw=document.getElementById("projectsText").innerText;
+  projectsRender.innerHTML="";
+  if(projectsRaw){
+    projectsRaw.split("\n").forEach(line=>{
+      const [title,desc]=line.split(" - ");
+      const div=document.createElement("div");
+      div.className="project-card";
+      div.innerHTML=`<h4>${title||""}</h4><p>${desc||""}</p>`;
+      projectsRender.appendChild(div);
+    });
+  }
+}
+renderProjects();
+
+// Listen to input changes to re-render projects
+document.getElementById("projectsText").addEventListener("input", renderProjects);
+
+// Download HTML
+document.getElementById("downloadHtml").onclick = () => {
+  const clone = document.getElementById("resumeContainer").cloneNode(true);
+  const btns = clone.querySelector("#downloadButtons");
+  if(btns) btns.remove();
+  const blob = new Blob([clone.outerHTML], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "resume.html";
+  a.click();
+};
+
+// Download PDF
+document.getElementById("downloadPdf").onclick = () => {
+  const btns = document.getElementById("downloadButtons");
+  if(btns) btns.style.display="none";
+  html2pdf().from(document.getElementById("resumeContainer")).save("resume.pdf").then(()=>{
+    if(btns) btns.style.display="block";
+  });
+};
+</script>
+
+</body>
+</html>
