@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>👑 Admin Dashboard</h2>
+      <div class="form" style="text-align: center; padding: 30px; background: #fce4ec; border-radius: 10px; margin-bottom: 30px;">
+        <h3>Welcome, Admin!</h3>
+        <p>Oversee all hostel operations, analytics, and management modules.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div class="stat-card" style="background: #c8e6c9; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>📊 View Reports</h3>
+          <a href="modules/admin-reports.html" class="btn btn-primary" style="margin-top: 10px;">Analytics</a>
+        </div>
+
+        <div class="stat-card" style="background: #ffccbc; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>👥 Manage Students</h3>
+          <a href="modules/student-registration.html" class="btn btn-primary" style="margin-top: 10px;">Register/Edit</a>
+        </div>
+
+        <div class="stat-card" style="background: #b3e5fc; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>🛎️ View Complaints</h3>
+          <a href="modules/complaints.html" class="btn btn-primary" style="margin-top: 10px;">All Complaints</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Security & OTP Verification</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>🔐 Security Settings & OTP Verification</h2>
+
+      <div class="form">
+        <h3>Change Contact Number</h3>
+        <p>For security, OTP verification is required to update contact details.</p>
+        <input type="tel" id="newMobile" placeholder="New Mobile Number" />
+        <button onclick="sendOTP()" class="btn btn-primary">Send OTP</button>
+        <div id="otpSection" style="margin-top: 20px; display: none;">
+          <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6" />
+          <button onclick="verifyOTP()" class="btn btn-success">Verify OTP</button>
+        </div>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>Emergency Alert Preferences</h3>
+        <label>
+          <input type="checkbox" id="smsAlerts" checked /> Receive SMS alerts for emergencies
+        </label><br><br>
+        <label>
+          <input type="checkbox" id="emailAlerts" /> Receive email alerts (simulated)
+        </label><br><br>
+        <button onclick="savePreferences()" class="btn btn-primary">Save Preferences</button>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>🔑 Simulated OTP Log</h3>
+        <div id="otpLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    let currentOTP = '';
+    let otpExpiry = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadPreferences();
+      loadOTPLog();
+    });
+
+    function sendOTP() {
+      const newMobile = document.getElementById('newMobile').value.trim();
+      if (!newMobile) {
+        alert("Please enter a new mobile number");
+        return;
+      }
+
+      // Generate 6-digit OTP
+      currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      otpExpiry = Date.now() + 300000; // 5 minutes expiry
+
+      // Log OTP (in real app, send via SMS gateway)
+      logOTP(`OTP ${currentOTP} sent to ${newMobile} at ${new Date().toLocaleTimeString()}`);
+
+      document.getElementById('otpSection').style.display = 'block';
+      alert(`🔐 Simulated OTP: ${currentOTP}\n(In real app, this would be sent via SMS)`);
+    }
+
+    function verifyOTP() {
+      const inputOTP = document.getElementById('otpInput').value;
+      if (Date.now() > otpExpiry) {
+        alert("OTP expired! Please request a new one.");
+        document.getElementById('otpSection').style.display = 'none';
+        return;
+      }
+
+      if (inputOTP === currentOTP) {
+        const newMobile = document.getElementById('newMobile').value;
+        
+        // Update student record
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        const student = students.find(s => s.enrollment === user.id);
+        
+        if (student) {
+          student.mobile = newMobile;
+          localStorage.setItem('students', JSON.stringify(students));
+          alert("✅ Mobile number updated successfully!");
+          document.getElementById('otpSection').style.display = 'none';
+          document.getElementById('newMobile').value = '';
+          document.getElementById('otpInput').value = '';
+        }
+      } else {
+        alert("❌ Invalid OTP. Please try again.");
+      }
+    }
+
+    function savePreferences() {
+      const sms = document.getElementById('smsAlerts').checked;
+      const email = document.getElementById('emailAlerts').checked;
+      
+      const prefs = { smsAlerts: sms, emailAlerts: email };
+      localStorage.setItem('alertPreferences', JSON.stringify(prefs));
+      
+      alert("Preferences saved!");
+    }
+
+    function loadPreferences() {
+      const prefs = JSON.parse(localStorage.getItem('alertPreferences')) || { smsAlerts: true, emailAlerts: false };
+      document.getElementById('smsAlerts').checked = prefs.smsAlerts;
+      document.getElementById('emailAlerts').checked = prefs.emailAlerts;
+    }
+
+    function logOTP(message) {
+      const logs = JSON.parse(localStorage.getItem('otpLogs')) || [];
+      logs.push({ message, timestamp: new Date().toLocaleString() });
+      localStorage.setItem('otpLogs', JSON.stringify(logs));
+      loadOTPLog();
+    }
+
+    function loadOTPLog() {
+      const logs = JSON.parse(localStorage.getItem('otpLogs')) || [];
+      const container = document.getElementById('otpLog');
+      container.innerHTML = logs.reverse().slice(0, 5).map(log => `
+        <div style="background:#f8f9fa; padding:10px; margin:5px 0; border-radius:5px; font-size:14px;">
+          ${log.message} <small>(${log.timestamp})</small>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

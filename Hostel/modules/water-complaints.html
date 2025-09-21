@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Water Complaints</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>💧 Water Supply Complaints</h2>
+
+      <form id="complaintForm">
+        <select id="complaintType" required>
+          <option value="">Select Issue</option>
+          <option value="no-water">No Water Supply</option>
+          <option value="low-pressure">Low Water Pressure</option>
+          <option value="dirty-water">Dirty/Contaminated Water</option>
+          <option value="leakage">Pipe Leakage</option>
+        </select>
+        <input type="text" id="roomNo" placeholder="Your Room No" required />
+        <textarea id="description" placeholder="Describe the issue" rows="3" required></textarea>
+        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+      </form>
+
+      <h3 style="margin-top: 40px;">📋 Recent Complaints</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Issue</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="complaintsList">
+          <!-- JS will populate -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadComplaints();
+
+      document.getElementById('complaintForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const complaint = {
+          id: Date.now(),
+          type: document.getElementById('complaintType').value,
+          room: document.getElementById('roomNo').value,
+          description: document.getElementById('description').value,
+          date: new Date().toLocaleDateString(),
+          status: "Pending",
+          assignedTo: "Caretaker (Morning)"
+        };
+
+        const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+        complaints.push(complaint);
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+
+        alert("Complaint registered! Caretaker will be notified.");
+        this.reset();
+        loadComplaints();
+      });
+    });
+
+    function loadComplaints() {
+      const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const tbody = document.getElementById('complaintsList');
+      tbody.innerHTML = complaints.map(c => `
+        <tr>
+          <td>${c.room}</td>
+          <td>${getIssueLabel(c.type)}</td>
+          <td>${c.description}</td>
+          <td><span class="status-${c.status.toLowerCase()}">${c.status}</span></td>
+          <td>${c.date}</td>
+          <td>
+            <button class="btn btn-success" onclick="resolveComplaint(${c.id})">Resolve</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function getIssueLabel(type) {
+      const labels = {
+        "no-water": "No Water",
+        "low-pressure": "Low Pressure",
+        "dirty-water": "Dirty Water",
+        "leakage": "Leakage"
+      };
+      return labels[type] || type;
+    }
+
+    function resolveComplaint(id) {
+      let complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const complaint = complaints.find(c => c.id === id);
+      if (complaint) {
+        complaint.status = "Resolved";
+        complaint.resolvedAt = new Date().toLocaleString();
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+        loadComplaints();
+        alert("✅ Complaint marked as resolved!");
+      }
+    }
+  </script>
+
+  <style>
+    .status-pending { color: #e67e22; font-weight: bold; }
+    .status-resolved { color: #27ae60; font-weight: bold; }
+  </style>
+</body>
+</html>

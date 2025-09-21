@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complaint & Suggestion Box</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>📬 Complaint & Suggestion Box</h2>
+
+      <form id="complaintForm">
+        <select id="complaintCategory" required>
+          <option value="">Select Category</option>
+          <option value="food">Food Quality</option>
+          <option value="water">Water Supply</option>
+          <option value="roommate">Roommate Issue</option>
+          <option value="electricity">Electricity</option>
+          <option value="cleanliness">Cleanliness</option>
+          <option value="other">Other</option>
+        </select>
+
+        <input type="text" id="roomNumber" placeholder="Your Room Number" required />
+        <textarea id="complaintDesc" placeholder="Describe your complaint or suggestion" rows="4" required></textarea>
+
+        <div style="margin: 15px 0;">
+          <label>📎 Attach Photo (Simulated)</label><br>
+          <input type="file" id="photoUpload" accept="image/*" style="margin-top: 5px;" />
+          <div id="photoPreview" style="margin-top: 10px; max-width: 200px;"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Complaint</button>
+      </form>
+
+      <h3 style="margin-top: 40px;">📋 Your Complaints</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Room</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="userComplaints"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    let uploadedPhoto = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+
+      // Photo preview simulation
+      document.getElementById('photoUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            uploadedPhoto = e.target.result;
+            document.getElementById('photoPreview').innerHTML = `<img src="${uploadedPhoto}" style="width:100%; border-radius:5px;" />`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      document.getElementById('complaintForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const category = document.getElementById('complaintCategory').value;
+        const room = document.getElementById('roomNumber').value;
+        const desc = document.getElementById('complaintDesc').value;
+
+        if (!category || !room || !desc) {
+          alert("Please fill all fields");
+          return;
+        }
+
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        const student = students.find(s => s.enrollment === user.id) || students[0];
+
+        const complaint = {
+          id: Date.now(),
+          studentId: student.id,
+          studentName: student.name,
+          category: category,
+          room: room,
+          description: desc,
+          hasPhoto: !!uploadedPhoto,
+          photo: uploadedPhoto || null,
+          status: "Pending",
+          date: new Date().toLocaleDateString(),
+          escalated: false
+        };
+
+        student.complaints.push(complaint);
+        localStorage.setItem('students', JSON.stringify(students));
+
+        alert("Complaint submitted successfully!");
+        this.reset();
+        document.getElementById('photoPreview').innerHTML = '';
+        uploadedPhoto = null;
+        loadUserComplaints(student.id);
+      });
+
+      // Load complaints for logged-in student
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.enrollment === user.id) || students[0];
+      if (student) loadUserComplaints(student.id);
+    });
+
+    function loadUserComplaints(studentId) {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.id === studentId);
+      const complaints = student?.complaints || [];
+
+      const tbody = document.getElementById('userComplaints');
+      tbody.innerHTML = complaints.map(c => `
+        <tr>
+          <td>${getCategoryLabel(c.category)}</td>
+          <td>${c.room}</td>
+          <td>${c.description.substring(0, 50)}${c.description.length > 50 ? '...' : ''}</td>
+          <td><span class="status-${c.status.toLowerCase()}">${c.status}</span></td>
+          <td>${c.date}</td>
+        </tr>
+      `).join('');
+    }
+
+    function getCategoryLabel(cat) {
+      const labels = {
+        "food": "Food",
+        "water": "Water",
+        "roommate": "Roommate",
+        "electricity": "Electricity",
+        "cleanliness": "Cleanliness",
+        "other": "Other"
+      };
+      return labels[cat] || cat;
+    }
+  </script>
+
+  <style>
+    .status-pending { color: #e67e22; font-weight: bold; }
+    .status-resolved { color: #27ae60; font-weight: bold; }
+  </style>
+</body>
+</html>

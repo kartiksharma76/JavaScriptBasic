@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Warden Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>👨‍🏫 Warden Dashboard</h2>
+      <div class="form" style="text-align: center; padding: 30px; background: #e8f5e8; border-radius: 10px; margin-bottom: 30px;">
+        <h3>Welcome, Warden!</h3>
+        <p>Manage students, review complaints, and ensure smooth hostel operations.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div class="stat-card" style="background: #bbdefb; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>📋 Pending Complaints</h3>
+          <div id="pendingCount" style="font-size: 32px; font-weight: bold;">0</div>
+          <a href="modules/complaints.html" class="btn btn-primary" style="margin-top: 10px;">View All</a>
+        </div>
+
+        <div class="stat-card" style="background: #ffecb3; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>🛏️ Room Allocation</h3>
+          <div id="allocatedRooms" style="font-size: 32px; font-weight: bold;">0</div>
+          <a href="modules/room-allocation.html" class="btn btn-primary" style="margin-top: 10px;">Manage</a>
+        </div>
+
+        <div class="stat-card" style="background: #f8bbd0; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>🩸 Blood Donor Alerts</h3>
+          <div style="font-size: 32px; font-weight: bold;">Live</div>
+          <a href="modules/blood-donor.html" class="btn btn-primary" style="margin-top: 10px;">View Donors</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+
+      const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const pending = complaints.filter(c => c.status === "Pending").length;
+      document.getElementById('pendingCount').textContent = pending;
+
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      document.getElementById('allocatedRooms').textContent = students.length;
+    });
+  </script>
+</body>
+</html>

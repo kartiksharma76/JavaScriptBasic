@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard & Reports</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>📊 Admin Dashboard & Analytics</h2>
+
+      <!-- Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0;">
+        <div class="stat-card" style="background: #3498db; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>Total Students</h3>
+          <div id="totalStudents" style="font-size: 32px; font-weight: bold;">0</div>
+        </div>
+
+        <div class="stat-card" style="background: #27ae60; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>Pending Complaints</h3>
+          <div id="pendingComplaints" style="font-size: 32px; font-weight: bold;">0</div>
+        </div>
+
+        <div class="stat-card" style="background: #e67e22; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>Avg Food Rating</h3>
+          <div id="avgFoodRating" style="font-size: 32px; font-weight: bold;">0.0</div>
+        </div>
+
+        <div class="stat-card" style="background: #9b59b6; color: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>Open Maintenance</h3>
+          <div id="openMaintenance" style="font-size: 32px; font-weight: bold;">0</div>
+        </div>
+      </div>
+
+      <!-- Charts Simulation -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>📈 Food Rating Trends (Last 7 Days)</h3>
+        <div id="ratingChart" style="height: 200px; background: #f8f9fa; border-radius: 10px; display: flex; align-items: flex-end; justify-content: space-around; padding: 20px 10px;">
+          <!-- JS will populate bars -->
+        </div>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>⚠️ Escalated Complaints</h3>
+        <div id="escalatedComplaints">
+          <!-- JS will populate -->
+        </div>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>🩸 Blood Group Distribution</h3>
+        <div id="bloodGroupChart" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+          <!-- JS will populate -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadAdminStats();
+    });
+
+    function loadAdminStats() {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const complaints = JSON.parse(localStorage.getItem('complaints')) || [];
+      const maintenance = JSON.parse(localStorage.getItem('maintenance')) || [];
+
+      // Total Students
+      document.getElementById('totalStudents').textContent = students.length;
+
+      // Pending Complaints (from complaints module)
+      const pendingComplaints = complaints.filter(c => c.status === "Pending").length;
+      document.getElementById('pendingComplaints').textContent = pendingComplaints;
+
+      // Open Maintenance
+      const openMaintenance = maintenance.filter(m => m.status === "Pending").length;
+      document.getElementById('openMaintenance').textContent = openMaintenance;
+
+      // Average Food Rating
+      const allRatings = students.flatMap(s => s.foodRatings.map(r => r.rating));
+      const avgRating = allRatings.length ? (allRatings.reduce((a,b) => a+b) / allRatings.length).toFixed(1) : 0.0;
+      document.getElementById('avgFoodRating').textContent = avgRating;
+
+      // Rating Chart (Last 7 days simulation)
+      generateRatingChart();
+
+      // Escalated Complaints (simulated - in real app you'd have escalation logic)
+      const escalated = complaints.filter(c => c.escalated).slice(0, 3);
+      const escalatedDiv = document.getElementById('escalatedComplaints');
+      escalatedDiv.innerHTML = escalated.length === 0 ? 
+        "<p>No escalated complaints.</p>" :
+        escalated.map(c => `
+          <div style="background:#fff5f5; padding:15px; margin:10px 0; border-radius:8px; border-left:4px solid #e74c3c;">
+            <strong>Room ${c.room}</strong> - ${c.type}<br>
+            "${c.description}"<br>
+            <small>Reported on ${c.date} • Escalated</small>
+          </div>
+        `).join('');
+
+      // Blood Group Distribution
+      const bloodGroups = {};
+      students.forEach(s => {
+        bloodGroups[s.bloodGroup] = (bloodGroups[s.bloodGroup] || 0) + 1;
+      });
+
+      const bloodDiv = document.getElementById('bloodGroupChart');
+      bloodDiv.innerHTML = Object.entries(bloodGroups).map(([group, count]) => `
+        <div style="flex: 1; min-width: 120px; background:white; padding:15px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center;">
+          <div style="font-size: 24px; font-weight: bold; color: #2c3e50;">${group}</div>
+          <div style="font-size: 32px; font-weight: bold; color: #3498db;">${count}</div>
+          <div>students</div>
+        </div>
+      `).join('');
+    }
+
+    function generateRatingChart() {
+      // Simulate last 7 days of average ratings
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const ratings = [4.2, 3.8, 4.5, 3.9, 4.1, 4.3, 4.0];
+      
+      const chartDiv = document.getElementById('ratingChart');
+      chartDiv.innerHTML = days.map((day, i) => `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 40px;">
+          <div style="height: ${ratings[i] * 30}px; width: 30px; background: #3498db; border-radius: 5px 5px 0 0;"></div>
+          <div style="margin-top: 5px; font-size: 12px;">${day}</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

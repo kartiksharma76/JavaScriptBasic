@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Management</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>👮 Staff Management</h2>
+
+      <div class="form">
+        <h3>Warden</h3>
+        <div id="wardenInfo"></div>
+        <button onclick="editWarden()" class="btn btn-primary" style="margin-top: 10px;">Edit Warden</button>
+      </div>
+
+      <div class="form" style="margin-top: 20px;">
+        <h3>Caretakers</h3>
+        <table>
+          <thead><tr><th>Name</th><th>Shift</th><th>Phone</th><th>Action</th></tr></thead>
+          <tbody id="caretakerList"></tbody>
+        </table>
+        <button onclick="addCaretaker()" class="btn btn-primary" style="margin-top: 10px;">+ Add Caretaker</button>
+      </div>
+
+      <div class="form" style="margin-top: 20px;">
+        <h3>Guards</h3>
+        <table>
+          <thead><tr><th>Name</th><th>Shift</th><th>Phone</th><th>Action</th></tr></thead>
+          <tbody id="guardList"></tbody>
+        </table>
+        <button onclick="addGuard()" class="btn btn-primary" style="margin-top: 10px;">+ Add Guard</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      renderStaff();
+    });
+
+    function renderStaff() {
+      const staff = JSON.parse(localStorage.getItem('staff')) || {};
+
+      // Warden
+      const wardenDiv = document.getElementById('wardenInfo');
+      wardenDiv.innerHTML = `
+        <p><strong>Name:</strong> ${staff.warden?.name || 'Not Set'}</p>
+        <p><strong>Phone:</strong> ${staff.warden?.phone || 'Not Set'}</p>
+        <p><strong>Shift:</strong> ${staff.warden?.shift || 'Full Day'}</p>
+      `;
+
+      // Caretakers
+      const caretakerTbody = document.getElementById('caretakerList');
+      caretakerTbody.innerHTML = (staff.caretakers || []).map((c, i) => `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.shift}</td>
+          <td>${c.phone}</td>
+          <td><button class="btn btn-danger" onclick="deleteCaretaker(${i})">Delete</button></td>
+        </tr>
+      `).join('');
+
+      // Guards
+      const guardTbody = document.getElementById('guardList');
+      guardTbody.innerHTML = (staff.guards || []).map((g, i) => `
+        <tr>
+          <td>${g.name}</td>
+          <td>${g.shift}</td>
+          <td>${g.phone}</td>
+          <td><button class="btn btn-danger" onclick="deleteGuard(${i})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function editWarden() {
+      const staff = JSON.parse(localStorage.getItem('staff')) || {};
+      const name = prompt("Warden Name:", staff.warden?.name || "");
+      const phone = prompt("Phone:", staff.warden?.phone || "");
+      if (name && phone) {
+        staff.warden = { name, phone, shift: "Full Day" };
+        localStorage.setItem('staff', JSON.stringify(staff));
+        renderStaff();
+      }
+    }
+
+    function addCaretaker() {
+      const name = prompt("Caretaker Name:");
+      const shift = prompt("Shift (Morning/Night):");
+      const phone = prompt("Phone:");
+      if (name && shift && phone) {
+        const staff = JSON.parse(localStorage.getItem('staff')) || { caretakers: [], guards: [] };
+        staff.caretakers = staff.caretakers || [];
+        staff.caretakers.push({ name, shift, phone });
+        localStorage.setItem('staff', JSON.stringify(staff));
+        renderStaff();
+      }
+    }
+
+    function addGuard() {
+      const name = prompt("Guard Name:");
+      const shift = prompt("Shift (Morning/Night):");
+      const phone = prompt("Phone:");
+      if (name && shift && phone) {
+        const staff = JSON.parse(localStorage.getItem('staff')) || { guards: [], caretakers: [] };
+        staff.guards = staff.guards || [];
+        staff.guards.push({ name, shift, phone });
+        localStorage.setItem('staff', JSON.stringify(staff));
+        renderStaff();
+      }
+    }
+
+    function deleteCaretaker(index) {
+      if (confirm("Delete this caretaker?")) {
+        const staff = JSON.parse(localStorage.getItem('staff')) || {};
+        staff.caretakers.splice(index, 1);
+        localStorage.setItem('staff', JSON.stringify(staff));
+        renderStaff();
+      }
+    }
+
+    function deleteGuard(index) {
+      if (confirm("Delete this guard?")) {
+        const staff = JSON.parse(localStorage.getItem('staff')) || {};
+        staff.guards.splice(index, 1);
+        localStorage.setItem('staff', JSON.stringify(staff));
+        renderStaff();
+      }
+    }
+  </script>
+</body>
+</html>

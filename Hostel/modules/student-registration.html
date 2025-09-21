@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Registration</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>📝 Student Registration & Management</h2>
+
+      <form id="studentForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="text" id="enrollment" placeholder="Enrollment No" required />
+        <select id="branch" required>
+          <option value="">Select Branch</option>
+          <option value="CSE">Computer Science</option>
+          <option value="ECE">Electronics</option>
+          <option value="ME">Mechanical</option>
+          <option value="CE">Civil</option>
+        </select>
+        <select id="year" required>
+          <option value="">Select Year</option>
+          <option value="1st">1st Year</option>
+          <option value="2nd">2nd Year</option>
+          <option value="3rd">3rd Year</option>
+          <option value="4th">4th Year</option>
+        </select>
+        <input type="date" id="dob" required />
+        <select id="bloodGroup" required>
+          <option value="">Blood Group</option>
+          <option value="A+">A+</option>
+          <option value="A-">A-</option>
+          <option value="B+">B+</option>
+          <option value="B-">B-</option>
+          <option value="O+">O+</option>
+          <option value="O-">O-</option>
+          <option value="AB+">AB+</option>
+          <option value="AB-">AB-</option>
+        </select>
+        <input type="tel" id="mobile" placeholder="Student Mobile" required />
+        <input type="text" id="parentName" placeholder="Parent Name" required />
+        <input type="tel" id="parentMobile" placeholder="Parent Mobile" required />
+        <input type="text" id="room" placeholder="Room No (e.g. A-101)" required />
+        <button type="submit" class="btn btn-primary">Save Student</button>
+      </form>
+
+      <h3 style="margin-top: 30px;">Registered Students</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Enrollment</th>
+            <th>Branch</th>
+            <th>Room</th>
+            <th>Blood Group</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      renderStudents();
+
+      document.getElementById('studentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const student = {
+          id: Date.now(),
+          name: document.getElementById('name').value,
+          enrollment: document.getElementById('enrollment').value,
+          branch: document.getElementById('branch').value,
+          year: document.getElementById('year').value,
+          dob: document.getElementById('dob').value,
+          bloodGroup: document.getElementById('bloodGroup').value,
+          mobile: document.getElementById('mobile').value,
+          parentName: document.getElementById('parentName').value,
+          parentMobile: document.getElementById('parentMobile').value,
+          room: document.getElementById('room').value,
+          foodRatings: [],
+          complaints: []
+        };
+
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        students.push(student);
+        localStorage.setItem('students', JSON.stringify(students));
+
+        renderStudents();
+        this.reset();
+        alert('Student added successfully!');
+      });
+    });
+
+    function renderStudents() {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const table = document.getElementById('studentTable');
+      table.innerHTML = students.map(s => `
+        <tr>
+          <td>${s.name}</td>
+          <td>${s.enrollment}</td>
+          <td>${s.branch}</td>
+          <td>${s.room}</td>
+          <td>${s.bloodGroup}</td>
+          <td>
+            <button class="btn btn-primary" onclick="alert('View: ${s.name}')">View</button>
+            <button class="btn btn-danger" onclick="deleteStudent(${s.id})">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteStudent(id) {
+      if (confirm('Delete this student?')) {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        students = students.filter(s => s.id !== id);
+        localStorage.setItem('students', JSON.stringify(students));
+        renderStudents();
+      }
+    }
+  </script>
+</body>
+</html>

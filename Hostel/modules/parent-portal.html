@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parent Portal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>👨‍👩‍👧 Parent Portal</h2>
+      <p>Monitor your child's hostel activities, attendance, and well-being.</p>
+
+      <!-- Student Info -->
+      <div class="form">
+        <h3>🎓 Student Information</h3>
+        <div id="studentInfo"></div>
+      </div>
+
+      <!-- Attendance & Food -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>🍽️ Food Attendance (This Week)</h3>
+        <div id="foodAttendance"></div>
+      </div>
+
+      <!-- Complaints -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>📬 Student Complaints</h3>
+        <div id="studentComplaints"></div>
+      </div>
+
+      <!-- Health Reports -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>❤️ Health Reports</h3>
+        <div id="healthReports">
+          <p>Monthly health checkup records will appear here.</p>
+          <button class="btn btn-primary" style="margin-top: 10px;" onclick="addHealthReport()">+ Add Health Report</button>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="form" style="margin-top: 30px; background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px;">
+        <h3>🔔 Real-time Alerts</h3>
+        <div id="parentAlerts">
+          <p>No recent alerts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadParentData();
+      simulateAlerts();
+    });
+
+    function loadParentData() {
+      // In real app, parents would login with their own credentials linked to student
+      // For demo, we'll show first student's data
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students[0]; // Simulate parent of first student
+
+      if (!student) {
+        document.getElementById('studentInfo').innerHTML = "<p>No student data available.</p>";
+        return;
+      }
+
+      // Student Info
+      document.getElementById('studentInfo').innerHTML = `
+        <p><strong>Name:</strong> ${student.name}</p>
+        <p><strong>Enrollment:</strong> ${student.enrollment}</p>
+        <p><strong>Branch/Year:</strong> ${student.branch} - ${student.year}</p>
+        <p><strong>Room:</strong> ${student.room}</p>
+        <p><strong>Blood Group:</strong> ${student.bloodGroup}</p>
+        <p><strong>Student Mobile:</strong> ${student.mobile}</p>
+      `;
+
+      // Food Attendance (simulated)
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const attended = [true, true, false, true, true, false, true]; // Simulated data
+      
+      let attendanceHTML = '<div style="display: flex; justify-content: space-around; margin: 20px 0;">';
+      days.forEach((day, i) => {
+        attendanceHTML += `
+          <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: ${attended[i] ? '#27ae60' : '#e74c3c'}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+              ${attended[i] ? '✓' : '✗'}
+            </div>
+            <div style="margin-top: 5px;">${day}</div>
+          </div>
+        `;
+      });
+      attendanceHTML += '</div>';
+      document.getElementById('foodAttendance').innerHTML = attendanceHTML;
+
+      // Student Complaints
+      const complaintsHTML = student.complaints && student.complaints.length > 0 ? 
+        student.complaints.map(c => `
+          <div style="background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>${c.category}</strong>
+              <span class="status-${c.status.toLowerCase()}">${c.status}</span>
+            </div>
+            <p>${c.description}</p>
+            <small>Reported on ${c.date}</small>
+          </div>
+        `).join('') : "<p>No complaints registered.</p>";
+      
+      document.getElementById('studentComplaints').innerHTML = complaintsHTML;
+
+      // Health Reports
+      const healthReports = JSON.parse(localStorage.getItem('healthReports')) || [];
+      const studentReports = healthReports.filter(r => r.studentId === student.id);
+      
+      if (studentReports.length > 0) {
+        document.getElementById('healthReports').innerHTML = studentReports.map(r => `
+          <div style="background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>Checkup on ${r.date}</strong>
+              <span style="color: ${r.status === 'Normal' ? '#27ae60' : '#e74c3c'};">${r.status}</span>
+            </div>
+            <p>Weight: ${r.weight} kg | BP: ${r.bp} | Temp: ${r.temp}°C</p>
+            <p>Remarks: ${r.remarks}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    function addHealthReport() {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students[0]; // Simulate for first student
+
+      const weight = prompt("Weight (kg):");
+      const bp = prompt("Blood Pressure (e.g., 120/80):");
+      const temp = prompt("Temperature (°C):");
+      const remarks = prompt("Remarks:");
+
+      if (weight && bp && temp) {
+        const report = {
+          id: Date.now(),
+          studentId: student.id,
+          date: new Date().toLocaleDateString(),
+          weight: weight,
+          bp: bp,
+          temp: temp,
+          remarks: remarks || "No remarks",
+          status: parseFloat(temp) > 37.5 ? "Fever" : "Normal"
+        };
+
+        const healthReports = JSON.parse(localStorage.getItem('healthReports')) || [];
+        healthReports.push(report);
+        localStorage.setItem('healthReports', JSON.stringify(healthReports));
+
+        alert("Health report added!");
+        loadParentData();
+      }
+    }
+
+    function simulateAlerts() {
+      // Simulate some alerts for demo
+      const alerts = [
+        "⚠️ Your child missed dinner yesterday",
+        "✅ Your child attended all meals this week",
+        "🩸 Blood donation request sent to your child (O+ needed)",
+        "🛏️ Room change request approved for your child"
+      ];
+
+      const randomAlert = alerts[Math.floor(Math.random() * alerts.length)];
+      document.getElementById('parentAlerts').innerHTML = `
+        <div style="background: #fff; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #fd7e14;">
+          <strong>🔔 ${randomAlert}</strong><br>
+          <small>${new Date().toLocaleString()}</small>
+        </div>
+        <p style="margin-top: 10px;">More alerts will appear here in real-time.</p>
+      `;
+    }
+  </script>
+</body>
+</html>

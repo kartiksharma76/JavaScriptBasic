@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hostel Management - Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: white;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h2>🏫 Hostel Management Portal</h2>
+      <p>Please login to continue</p>
+      
+      <select id="userType" required>
+        <option value="">-- Select Role --</option>
+        <option value="admin">Admin</option>
+        <option value="warden">Warden</option>
+        <option value="student">Student</option>
+      </select>
+      
+      <input type="text" id="userId" placeholder="Enrollment No / ID" required />
+      <input type="password" id="password" placeholder="Password" required />
+      
+      <button onclick="login()" style="margin-top: 15px;">Login</button>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="#" onclick="openForgotModal(); return false;" style="color: #3498db; margin-right: 15px;">Forgot Password?</a>
+        <a href="#" onclick="openCreateModal(); return false;" style="color: #27ae60;">Create New Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('forgotModal')">&times;</span>
+      <h3>🔑 Forgot Password</h3>
+      <p>Enter your ID to reset password.</p>
+      <input type="text" id="forgotUserId" placeholder="Your Enrollment/ID" style="width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px;" />
+      <button onclick="resetPassword()" class="btn btn-primary" style="width: 100%;">Reset Password</button>
+    </div>
+  </div>
+
+  <!-- Create Account Modal -->
+  <div id="createModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('createModal')">&times;</span>
+      <h3>➕ Create New Account</h3>
+      <select id="newUserType" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px;">
+        <option value="">-- Select Role --</option>
+        <option value="student">Student</option>
+        <option value="warden">Warden</option>
+        <option value="admin">Admin</option>
+      </select>
+      <input type="text" id="newUserId" placeholder="Enrollment No / Staff ID" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px;" />
+      <button onclick="createAccount()" class="btn btn-success" style="width: 100%;">Create Account</button>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    function openForgotModal() {
+      document.getElementById('forgotModal').style.display = 'block';
+    }
+
+    function openCreateModal() {
+      document.getElementById('createModal').style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    function resetPassword() {
+      const userId = document.getElementById('forgotUserId').value.trim();
+      if (!userId) {
+        alert("Please enter your ID");
+        return;
+      }
+      alert(`🔐 Password reset for ${userId}!\nYour new password is: 1234`);
+      closeModal('forgotModal');
+    }
+
+    function createAccount() {
+      const userType = document.getElementById('newUserType').value;
+      const userId = document.getElementById('newUserId').value.trim();
+
+      if (!userType || !userId) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      if (userType === 'student') {
+        const students = JSON.parse(localStorage.getItem('students')) || [];
+        const exists = students.some(s => s.enrollment === userId);
+        if (!exists) {
+          students.push({
+            id: Date.now(),
+            name: "New Student",
+            enrollment: userId,
+            branch: "CSE",
+            year: "1st",
+            dob: "2004-01-01",
+            bloodGroup: "O+",
+            mobile: "0000000000",
+            parentName: "Parent",
+            parentMobile: "0000000000",
+            room: "Not Assigned",
+            foodRatings: [],
+            complaints: []
+          });
+          localStorage.setItem('students', JSON.stringify(students));
+        }
+      }
+
+      alert(`✅ Account created for ${userId} as ${userType}!\nPassword: 1234`);
+      closeModal('createModal');
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+  </script>
+  
+</body>
+</html>

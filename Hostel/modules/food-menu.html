@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food Menu & Feedback</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>🍽️ Daily Food Menu & Feedback</h2>
+      <p>Rate your meals and help us improve!</p>
+
+      <div class="form">
+        <h3>Today's Menu</h3>
+        <p><strong>Breakfast:</strong> <span id="breakfast">Poha + Tea</span></p>
+        <p><strong>Lunch:</strong> <span id="lunch">Dal + Rice + Sabzi</span></p>
+        <p><strong>Dinner:</strong> <span id="dinner">Chapati + Paneer</span></p>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>Rate Your Meal</h3>
+        <select id="mealType">
+          <option value="">Select Meal</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+        </select>
+        <div class="rating">
+          <label>Rating: </label>
+          <span id="ratingValue">0</span>/5
+          <div id="stars" style="color: gold; font-size: 24px; cursor: pointer;">★★★★★</div>
+        </div>
+        <textarea id="feedbackText" placeholder="Any feedback?" rows="3"></textarea>
+        <button onclick="alert('Thank you for feedback!')" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+    });
+  </script>
+</body>
+</html>

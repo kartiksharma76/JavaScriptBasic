@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>🎓 Student Dashboard</h2>
+
+      <div class="form" style="text-align: center; padding: 30px; background: #e3f2fd; border-radius: 10px; margin-bottom: 30px;">
+        <h3 id="welcomeMessage">Loading...</h3>
+        <p>Manage your hostel life, view food menu, raise complaints, and more.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div class="quick-action" style="background: #e3f2fd; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3>🍽️ Today's Menu</h3>
+          <p>View what's being served today</p>
+          <a href="modules/food-menu.html" class="btn btn-primary">View Menu</a>
+        </div>
+
+        <div class="quick-action" style="background: #fff3e0; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3>📬 Raise Complaint</h3>
+          <p>Report issues with food, water, or room</p>
+          <a href="modules/complaints.html" class="btn btn-primary">File Complaint</a>
+        </div>
+
+        <div class="quick-action" style="background: #f3e5f5; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3>🩸 Blood Donor</h3>
+          <p>Find donors in emergency</p>
+          <a href="modules/blood-donor.html" class="btn btn-primary">Find Donors</a>
+        </div>
+
+        <div class="quick-action" style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3>🔧 Maintenance</h3>
+          <p>Report broken fan, light, etc.</p>
+          <a href="modules/maintenance.html" class="btn btn-primary">Report Issue</a>
+        </div>
+      </div>
+
+      <div class="form">
+        <h3>📅 Recent Activity</h3>
+        <div id="recentActivity">
+          <p>Loading activity...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = checkLogin();
+      loadSidebar();
+
+      // ✅ AUTO-UPDATE NAME TO "KARTIKEY SHARMA" (Silent & Permanent)
+      (() => {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        const targetStudent = students.find(s => s.enrollment === "CS2021001");
+        
+        // Only update if name is not already "Kartikey Sharma"
+        if (targetStudent && targetStudent.name !== "Kartikey Sharma") {
+          targetStudent.name = "Kartikey Sharma";
+          targetStudent.parentName = "Mr. Kartikey's Parent"; // Optional bonus update
+          localStorage.setItem('students', JSON.stringify(students));
+          console.log("✅ Student name auto-updated to Kartikey Sharma");
+        }
+      })();
+
+      // Now load the student data (which is now updated)
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.enrollment === user.id) || students[0];
+      
+      if (student) {
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${student.name}!`;
+      } else {
+        document.getElementById('welcomeMessage').textContent = "Welcome, Student!";
+      }
+
+      document.getElementById('recentActivity').innerHTML = `
+        <div style="background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <div style="display:flex; justify-content:space-between;">
+            <span>✅ You're all set! Explore modules using sidebar.</span>
+            <small style="color:#7f8c8d;">Now</small>
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

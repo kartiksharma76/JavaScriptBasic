@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notices & Timings</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>📢 Hostel Notices & Timings</h2>
+
+      <!-- Timings Section -->
+      <div class="form">
+        <h3>⏰ Meal Timings</h3>
+        <ul>
+          <li><strong>Breakfast:</strong> 7:00 AM - 9:00 AM</li>
+          <li><strong>Lunch:</strong> 1:00 PM - 2:30 PM</li>
+          <li><strong>Dinner:</strong> 8:00 PM - 9:30 PM</li>
+        </ul>
+      </div>
+
+      <!-- Add Notice -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>➕ Post New Notice</h3>
+        <input type="text" id="noticeTitle" placeholder="Notice Title" required />
+        <textarea id="noticeDesc" placeholder="Notice Description" rows="3" required></textarea>
+        <input type="date" id="noticeDate" required />
+        <button onclick="postNotice()" class="btn btn-primary">Post Notice</button>
+      </div>
+
+      <!-- Notices List -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>📋 Recent Notices</h3>
+        <div id="noticesList">
+          <!-- JS will populate -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadNotices();
+    });
+
+    function postNotice() {
+      const title = document.getElementById('noticeTitle').value.trim();
+      const desc = document.getElementById('noticeDesc').value.trim();
+      const date = document.getElementById('noticeDate').value;
+
+      if (!title || !desc || !date) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      const notice = {
+        id: Date.now(),
+        title,
+        desc,
+        date,
+        postedAt: new Date().toLocaleString()
+      };
+
+      const notices = JSON.parse(localStorage.getItem('notices')) || [];
+      notices.push(notice);
+      localStorage.setItem('notices', JSON.stringify(notices));
+
+      alert("Notice posted successfully!");
+      document.getElementById('noticeTitle').value = '';
+      document.getElementById('noticeDesc').value = '';
+      loadNotices();
+    }
+
+    function loadNotices() {
+      const notices = JSON.parse(localStorage.getItem('notices')) || [];
+      const container = document.getElementById('noticesList');
+      container.innerHTML = notices.reverse().map(n => `
+        <div style="background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <h4>${n.title}</h4>
+          <p>${n.desc}</p>
+          <small>📅 ${n.date} | 📌 Posted on ${n.postedAt}</small>
+          <button class="btn btn-danger" style="float:right;" onclick="deleteNotice(${n.id})">Delete</button>
+          <div style="clear:both;"></div>
+        </div>
+      `).join('');
+    }
+
+    function deleteNotice(id) {
+      if (confirm("Delete this notice?")) {
+        let notices = JSON.parse(localStorage.getItem('notices')) || [];
+        notices = notices.filter(n => n.id !== id);
+        localStorage.setItem('notices', JSON.stringify(notices));
+        loadNotices();
+      }
+    }
+  </script>
+</body>
+</html>

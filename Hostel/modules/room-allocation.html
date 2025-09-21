@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Room Allocation</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- JS will populate -->
+      </ul>
+    </div>
+    <div class="main-content">
+      <h2>🛏️ Room Allocation System</h2>
+
+      <div class="form">
+        <h3>Allocate Room to Student</h3>
+        <input type="text" id="studentEnroll" placeholder="Student Enrollment No" />
+        <input type="text" id="roomNumber" placeholder="Room Number (e.g. A-101)" />
+        <button onclick="allocateRoom()" class="btn btn-primary">Allocate Room</button>
+      </div>
+
+      <div class="form" style="margin-top: 30px;">
+        <h3>Current Allocations</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Enrollment</th>
+              <th>Room</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="allocationList">
+            <!-- JS will populate -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      renderAllocations();
+    });
+
+    function allocateRoom() {
+      const enroll = document.getElementById('studentEnroll').value.trim();
+      const room = document.getElementById('roomNumber').value.trim();
+
+      if (!enroll || !room) {
+        alert("Please enter both Enrollment and Room Number");
+        return;
+      }
+
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.enrollment === enroll);
+
+      if (!student) {
+        alert("Student not found!");
+        return;
+      }
+
+      student.room = room;
+      localStorage.setItem('students', JSON.stringify(students));
+
+      alert(`Room ${room} allocated to ${student.name}!`);
+      document.getElementById('studentEnroll').value = '';
+      document.getElementById('roomNumber').value = '';
+      renderAllocations();
+    }
+
+    function renderAllocations() {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const tbody = document.getElementById('allocationList');
+
+      tbody.innerHTML = students.map(s => `
+        <tr>
+          <td>${s.name}</td>
+          <td>${s.enrollment}</td>
+          <td>${s.room || 'Not Assigned'}</td>
+          <td>
+            <button class="btn btn-danger" onclick="clearRoom(${s.id})">Clear</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function clearRoom(studentId) {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.id === studentId);
+      if (student) {
+        student.room = '';
+        localStorage.setItem('students', JSON.stringify(students));
+        renderAllocations();
+      }
+    }
+  </script>
+</body>
+</html>

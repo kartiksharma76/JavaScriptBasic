@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Room Change & Maintenance</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <ul></ul>
+    </div>
+    <div class="main-content">
+      <h2>🔧 Room Change & Maintenance Requests</h2>
+
+      <!-- Room Change Request -->
+      <div class="form">
+        <h3>🚪 Request Room Change</h3>
+        <p>Reasons: Discomfort, conflicts, medical needs, etc.</p>
+        <textarea id="roomChangeReason" placeholder="Explain why you need a room change" rows="4" required></textarea>
+        <button onclick="submitRoomChange()" class="btn btn-primary">Submit Request</button>
+      </div>
+
+      <!-- Maintenance Request -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>🛠️ Report Maintenance Issue</h3>
+        <select id="issueType" required>
+          <option value="">Select Issue Type</option>
+          <option value="fan">Fan Not Working</option>
+          <option value="light">Light Not Working</option>
+          <option value="switch">Faulty Switch</option>
+          <option value="bed">Damaged Bed</option>
+          <option value="window">Broken Window</option>
+          <option value="door">Door Issue</option>
+          <option value="other">Other</option>
+        </select>
+        <input type="text" id="roomNo" placeholder="Your Room Number" required />
+        <textarea id="issueDesc" placeholder="Describe the issue in detail" rows="3"></textarea>
+        <button onclick="submitMaintenance()" class="btn btn-primary">Report Issue</button>
+      </div>
+
+      <!-- My Requests -->
+      <div class="form" style="margin-top: 30px;">
+        <h3>📋 My Requests</h3>
+        <div id="myRequests"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLogin();
+      loadSidebar();
+      loadMyRequests();
+    });
+
+    function submitRoomChange() {
+      const reason = document.getElementById('roomChangeReason').value.trim();
+      if (!reason) {
+        alert("Please provide a reason for room change");
+        return;
+      }
+
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+      const student = students.find(s => s.enrollment === user.id) || students[0];
+
+      const request = {
+        id: Date.now(),
+        type: "room-change",
+        studentId: student.id,
+        room: student.room,
+        reason: reason,
+        status: "Pending",
+        date: new Date().toLocaleDateString(),
+        category: "Room Change"
+      };
+
+      // In real app, you'd have a separate maintenance collection
+      const maintenance = JSON.parse(localStorage.getItem('maintenance')) || [];
+      maintenance.push(request);
+      localStorage.setItem('maintenance', JSON.stringify(maintenance));
+
+      alert("Room change request submitted! Warden will review it.");
+      document.getElementById('roomChangeReason').value = '';
+      loadMyRequests();
+    }
+
+    function submitMaintenance() {
+      const issueType = document.getElementById('issueType').value;
+      const roomNo = document.getElementById('roomNo').value.trim();
+      const desc = document.getElementById('issueDesc').value.trim();
+
+      if (!issueType || !roomNo) {
+        alert("Please fill required fields");
+        return;
+      }
+
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+      const student = students.find(s => s.enrollment === user.id) || students[0];
+
+      const request = {
+        id: Date.now(),
+        type: "maintenance",
+        studentId: student.id,
+        room: roomNo,
+        issueType: issueType,
+        description: desc,
+        status: "Pending",
+        date: new Date().toLocaleDateString(),
+        category: "Maintenance"
+      };
+
+      const maintenance = JSON.parse(localStorage.getItem('maintenance')) || [];
+      maintenance.push(request);
+      localStorage.setItem('maintenance', JSON.stringify(maintenance));
+
+      alert("Maintenance request submitted! Caretaker will be notified.");
+      document.getElementById('issueType').value = '';
+      document.getElementById('roomNo').value = '';
+      document.getElementById('issueDesc').value = '';
+      loadMyRequests();
+    }
+
+    function loadMyRequests() {
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.enrollment === user.id) || students[0];
+      
+      const maintenance = JSON.parse(localStorage.getItem('maintenance')) || [];
+      const myRequests = maintenance.filter(req => req.studentId === student.id);
+
+      const container = document.getElementById('myRequests');
+      container.innerHTML = myRequests.length === 0 ? 
+        "<p>You haven't submitted any requests yet.</p>" :
+        myRequests.map(req => `
+          <div style="background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>${req.category}</strong> - ${getStatusText(req.status)}
+                <br><small>${req.date}</small>
+              </div>
+              <span class="status-${req.status.toLowerCase()}">${req.status}</span>
+            </div>
+            <p style="margin:10px 0;">${req.reason || req.description}</p>
+            ${req.issueType ? `<p><small>Issue: ${req.issueType}</small></p>` : ''}
+            <p><small>Room: ${req.room}</small></p>
+          </div>
+        `).join('');
+    }
+
+    function getStatusText(status) {
+      const texts = {
+        "Pending": "Awaiting review",
+        "Approved": "Approved - will be processed",
+        "Rejected": "Rejected - contact warden",
+        "In Progress": "Being worked on",
+        "Completed": "Completed"
+      };
+      return texts[status] || status;
+    }
+  </script>
+
+  <style>
+    .status-pending { color: #e67e22; font-weight: bold; }
+    .status-approved, .status-completed { color: #27ae60; font-weight: bold; }
+    .status-rejected { color: #e74c3c; font-weight: bold; }
+    .status-in-progress { color: #3498db; font-weight: bold; }
+  </style>
+</body>
+</html>
