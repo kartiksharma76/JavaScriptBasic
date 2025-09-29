@@ -1,0 +1,248 @@
+                                        LINKED LIST
+                                ________________________________
+                                
+Here is a detailed explanation of the concepts in the provided PDF on Linked Lists, covering the structure, operations,
+ types, and comparisons with arrays, as well as their use in implementing Abstract Data Types (ADTs) like Stacks and Queues.
+
+Introduction to Linked Lists
+A 
+
+linked list is a data structure where successive elements are connected by pointers. It is a flexible structure that can 
+
+
+
+change during execution, meaning it can grow or shrink in size as a program runs.
+
+
+Key characteristics of a linked list:
+
+Elements are connected by pointers.
+
+The 
+
+last element points to NULL.
+
+It can be made as long as required, which means it 
+
+does not waste memory space.
+
+To keep track of a linked list, you 
+
+must know the pointer to the first element, which is typically called the head (or start).
+
+
+
+Flexibility and Operations
+Linked lists offer 
+
+flexibility because they allow items to be rearranged efficiently through the insertion and deletion of elements.
+
+
+Insertion
+To insert a new element (node), the following steps are essentially performed:
+
+A record is created to hold the new item.
+
+The 
+
+next pointer of the new record is set to link it to the item that will follow it in the list.
+
+The 
+
+next pointer of the item that precedes it must be modified to point to the new item.
+
+Deletion
+To delete an element, the 
+
+next pointer of the item immediately preceding the one to be deleted is changed to point to the item following the deleted item.
+
+Basic Operations on a List
+The basic operations you can perform on a list are:
+
+Creating a list
+
+Traversing the list
+
+Inserting an item
+
+Deleting an item
+
+Concatenating two lists
+
+Array vs. Linked Lists
+The choice between an array and a linked list depends on the application:
+
+Feature	Arrays are suitable for:	Linked Lists are suitable for:
+Element Modification	
+Inserting/deleting an element 
+
+at the end.
+
+Inserting an element.
+
+Deleting an element.
+
+Access		
+Randomly accessing any element.
+
+Applications where 
+
+sequential access is required.
+
+Searching		
+Searching the list for a particular value.
+
+Size		
+Situations where the 
+
+number of elements cannot be predicted beforehand.
+
+
+Export to Sheets
+Types of Linked Lists
+Different types of linked lists are possible depending on how the links are used to maintain adjacency:
+
+
+Linear Singly-Linked List (or simply linear list): This is the most common type, where each element points to the next, and the last element points to NULL (not explicitly stated, but implied by the basic definition). The structure includes a 
+
+head pointer to the first element.
+
+
+Circular Linked List: The pointer from the last element in the list points back to the first element.
+
+
+Doubly Linked List: Pointers exist between adjacent nodes in both directions. This allows the list to be traversed both 
+
+forward and backward. Usually, two pointers are maintained: one to the 
+
+head and one to the tail.
+
+
+
+Linked List as an Abstract Data Type (ADT)
+A 
+
+List is considered an Abstract Data Type (ADT):
+
+It is a 
+
+user-defined data type, typically more complex than simple types like int or float.
+
+It is 
+
+abstract because the details of its implementation are hidden.
+
+When a user performs an operation (like 
+
+insert), they just call a function, and the underlying implementation details (how the list is implemented or how the function is written) are not required knowledge.
+
+The fundamental structure for a list node is often a C 
+
+struct, which in the example includes fields like roll, name, age, and a pointer to the next node, *next.
+
+List Operations in C (Example implementation)
+The document provides C code examples for key linked list operations based on a 
+
+struct stud (aliased as node).
+
+Creating a List
+You must create the first node and make the 
+
+head pointer point to it using malloc.
+
+For subsequent nodes, you allocate a record, read the data, and modify the links to form the chain.
+
+The list creation function handles allocating 
+
+n nodes, taking input, and ensuring the final node's next pointer is set to NULL.
+
+Traversing and Displaying the List
+Once the list is constructed, you 
+
+follow the pointers from the head.
+
+You display the contents of each node as they are traversed.
+
+The traversal 
+
+stops when the next pointer points to NULL.
+
+Inserting a Node
+The insertion function can handle three cases, based on a specified roll (key):
+
+
+At the beginning (p->roll == rno): The new node's next pointer points to the current first node (p), and head is updated to point to the new node.
+
+
+
+
+At the end (Loop finishes with p == NULL): The previous last node (q) is made to point to the new node, and the new node's next pointer is set to NULL.
+
+
+
+
+In the middle (p->roll == rno): The preceding node (q) points to the new node, and the new node points to the subsequent node (p). Pointers 
+
+
+q and p are maintained to always point to consecutive nodes during the search for the insertion point.
+
+
+Deleting a Node
+The deletion function finds a specified node (by 
+
+roll) and handles three cases:
+
+
+Deleting the first element: head is updated to point to the second element (p->next), and the first node (p) is released using free(p).
+
+
+Deleting an intermediate or last element (p->roll == rno): The preceding node (q) is made to skip the deleted node by pointing its next to the node following the deleted one (p->next), and the node (p) is released using free(p).
+
+
+Element not found (p == NULL): A deletion failed message is printed.
+
+Implementation of ADTs: STACK and QUEUE
+Linked lists are used to implement other ADTs, such as Stacks and Queues.
+
+Stack (LIFO - Last-In, First-Out)
+A stack is a 
+
+LIFO list (Last-In, First-Out).
+
+Basic Idea: The stack is maintained as a linked list, where a top pointer points to the start of the list. The first element of the linked list is considered the stack top.
+
+
+push (Insertion): Elements are inserted at the stack top (beginning of the list).
+
+
+
+pop (Deletion): Elements are removed from the stack top (beginning of the list).
+
+
+
+Array vs. Linked List: The linked list implementation does not require a check for "stack full" in the same way an array does, as memory allocation is checked with malloc().
+
+Queue (FIFO - First-In, First-Out)
+A queue is a 
+
+FIFO list (First-In, First-Out).
+
+
+Basic Idea: Items are added to one end and deleted from the other. 
+
+
+
+Two pointers are maintained:
+
+
+
+front: Points to the beginning, where elements are deleted (dequeue).
+
+
+
+rear: Points to the end, where new elements are inserted (enqueue).
+
+
+Problem with Array Implementation: Standard array implementation can reduce the effective storage area as elements are deleted from the front. This is often solved by using 
+
+circular array indexing.
